@@ -52,7 +52,8 @@
 - [x] `app.py` Gradio (run() tested: outputs, bad file, no file): upload/examples, mode selector, before/after, intermediates gallery, metrics/latency readout, error messages
 - [x] Bad-input tests via the running server (corrupt, 8×8, alpha, 4000 px) + tests/test_smoke.py
 - [x] `Dockerfile` + `.dockerignore`; `python app.py` checked locally (Docker Desktop not running, so no local image build)
-- [ ] Push to Hugging Face Spaces
+- [x] UI redesign: slider, stat cards, compare tab, thumbnails, mobile-checked
+- [ ] Push to Hugging Face Spaces (waiting for HF login)
 - [ ] Measure HF CPU latency (600 / 1024 / 4000 px, cold vs. warm) → eval file
 - [ ] Test the URL on phone + laptop
 

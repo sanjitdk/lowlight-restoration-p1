@@ -1,6 +1,8 @@
 .venv
 data
-results
+results/*/images
+results/*.log
+results/*.err
 notebooks
 .git
 __pycache__

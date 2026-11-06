@@ -1,0 +1,4 @@
+epoch 0 (init) val PSNR 14.46
+epoch 1 loss 1.5597 val PSNR 16.23 (369s)  <- best, saved
+epoch 2 loss 1.4520 val PSNR 16.20 (288s)
+epoch 3 loss 1.4180 val PSNR 15.75 (299s)

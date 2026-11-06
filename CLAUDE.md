@@ -1,0 +1,57 @@
+# CLAUDE.md — CV Hackathon 2026, Problem P1 (Low-Light Image Restoration)
+
+## Project overview
+Solo hackathon entry. It builds a low-light image enhancement system with three approaches:
+- **Classical:** Retinex + illumination estimation + CLAHE + guided/bilateral denoise + colour correction, with adaptive params
+- **Deep learning:** Zero-DCE++, pretrained and then fine-tuned on LOL-v1
+- **Hybrid:** the classical illumination map guides the DL output, followed by adaptive denoise, fusion and a validated quality selector
+
+It is deployed as a Gradio app on Hugging Face Spaces.
+
+Key docs: `goal.md` (what done means), `plan.md` (approach + phases), `todolist.md` (progress checklist).
+
+## Environment
+- Windows 11, Python 3.9 local, **no local GPU**. Training runs on Kaggle/Colab GPU.
+- Hosting: Hugging Face Spaces (CPU, Gradio).
+
+## Conventions
+- Source code lives in `src/` (modular: `analysis`, `classical`, `dl/`, `hybrid`, `metrics`, `io_utils`). Runnable scripts live in `scripts/`.
+- `data/` is gitignored. **Never commit datasets, kaggle.json or tokens.**
+- Split: LOL-v1 our485 → 435 train / 50 val (seed 42). Test = LOL-v1 eval15 + LOL-v2 Real test (100).
+- **Tune only on val.** Test runs once with `configs/final.yaml`; no changes after seeing test numbers.
+- Results come only from `scripts/evaluate.py`. Never hand-edit numbers. Report losses honestly.
+- After each completed step, tick it in `todolist.md` and add an entry to the Progress log below.
+
+## Commands (fill in as they're created)
+- Install: `pip install -r requirements.txt`
+- Run app: `python app.py`
+- Evaluate (dev): `python scripts/evaluate.py --split val`
+- Evaluate (final, once): `python scripts/evaluate.py --split test --config configs/final.yaml`
+
+## Progress log
+### 2026-11-06
+- Read the problem statement (P1) and the rubric/instruction sheet.
+- Decisions: solo; Zero-DCE++ (tiny, fast on CPU) as the DL model; Kaggle GPU for fine-tuning; Hugging Face Spaces for hosting; MIT-FiveK skipped.
+- Integrity rules added after review: measured-only reporting, val-only tuning, combined quality selector that must be shown to help, strict pretrained-weight check, latency measured on the deployed CPU.
+- Created `plan.md`, `goal.md`, `todolist.md`, `CLAUDE.md`. **Next: Phase 1 (setup).**
+- **Phase 1 (setup):** folders, `requirements.txt` (light, for the app) + `requirements-dev.txt` (lpips, pyiqa, pandas, kaggle…), `.gitignore`, `git init`, `scripts/make_splits.py` (our485 → 435/50, seed 42). The venv install was still running at this point.
+- **Phase 2 (data):** blocked; waiting for `~/.kaggle/kaggle.json` from the user.
+- **Phase 3 started early (no data needed):** `src/io_utils.py` (safe loading: alpha, gray, 16-bit, corrupt, tiny, huge → max side 1024; `ImageInputError` for user-facing errors), `src/analysis.py` (`analyze()` stats + `adaptive_params()`; `FIXED_PARAMS` is the non-adaptive baseline), `src/classical.py` (guided-filter illumination, Retinex, guided denoise weighted to dark regions, CLAHE on Lab-L, gray-world WB + saturation; `disable=` for ablations; returns intermediates). `tests/test_smoke.py` uses a synthetic dark image + bad inputs.
+- **Phase 4 started early:** `src/dl/zerodce.py` is ported from the official Zero-DCE++ (layer names match the checkpoint, strict load, expected 10,561 params; `strength` scalar or map for hybrid guidance). The official weights were downloaded to `weights/zerodcepp_pretrained.pth` (52 KB). `src/dl/train.py` covers zero-reference losses + optional supervised L1+SSIM (`--sup`), best epoch chosen by val PSNR, train/val overlap asserted.
+- **Phase 2 (data) done without Kaggle:** used public Hugging Face mirrors. LOL-v1: `geekyrakshit/LoL-Dataset` (347 MB zip, 485 + 15 pairs, `.DS_Store` removed). LOL-v2 Real test: `okhater/lolv2-real` (Test/Input + Test/GT, 100 pairs). Splits: train 435 / val 50 / test_lol 15 / test_lolv2 100, no overlap. (The first LOL-v2 attempt failed on Windows CRLF line endings in the file list; fixed with `tr -d '\r'`.)
+- **Checks passed:** smoke test (synthetic dark astronaut: classical 6.8 → 14.1 dB; bad inputs handled). Zero-DCE++ strict load OK, 10,561 params. **Pretrained val PSNR = 14.46 dB**, in line with published LOL numbers, so the port is correct.
+- **Bug found and fixed:** `estimate_sigma` needs PyWavelets (missing). A broad `except Exception` silently returned noise=0, so denoising never ran. Added `PyWavelets==1.6.0`, narrowed excepts to `(ValueError, FloatingPointError)`. **Design change:** noise is now measured *after brightening* (`analysis.post_noise_eps`), because dark inputs hide noise in absolute terms; eps = (k·σ)². On 3 val images SSIM rose from ~0.21 to ~0.49 as k increased. Tuning on the full val set is pending.
+- **Fine-tune on local CPU** instead of Kaggle (Zero-DCE++ is tiny): `python -m src.dl.train --epochs 12 --bs 8 --crop 256 --sup 1.0`, launched as a detached process; log in `results/finetune_log.txt`. Epoch 1 val = 16.23 dB (from 14.46). About 6 min/epoch.
+- **Written (Phase 5–7 code):** `src/hybrid.py` (`HybridEnhancer`: modes hybrid/auto/classical/dl; ablation `disable=`), `src/metrics.py`, `scripts/tune_val.py` (coordinate descent on val, J = PSNR/20 + SSIM → `configs/final.yaml`), `scripts/fit_selector.py` (NNLS + LOO; enables the selector only if it beats always-hybrid), `scripts/evaluate.py` (all methods + 6 ablations; `results/test_lock.json` refuses re-running test with a changed config), `app.py` (Gradio 4.44; intermediates gallery, errors via `gr.Error`), `Dockerfile` (python:3.10-slim, uid 1000, port 7860).
+- **Fine-tune stopped after epoch 3** (val 16.23 → 16.20 → 15.75 dB). Saved weights = epoch 1. History is in `weights/zerodcepp_finetuned.history.json`.
+- **Tuning run 1** (J = PSNR/20 + SSIM): hybrid val 17.62 dB / 0.735. A 2-image dry-run of `evaluate.py` showed adaptive LPIPS much worse than fixed (0.46 vs. 0.35), i.e. this objective favoured over-smoothing. Kept as `configs/tuned_psnr_ssim_only.yaml` and `results/*_psnr_ssim_only.*`.
+- **Tuning run 2 (final)**: J = PSNR/20 + SSIM − LPIPS, still val only. Chosen: denoise_k 8, floor 0.6, radius 7, target_lum 0.35, clahe_clip_max 1.5, saturation 1.0, guide_min 0.2, fusion_dl_bias 2.0. **Val:** classical 16.18 / 0.727 / 0.345; hybrid **17.16 / 0.741 / 0.343** (PSNR / SSIM / LPIPS). Findings: illumination guidance adds only ~0.1 dB on LOL (uniform darkness); strong CLAHE hurts LPIPS; several choices sit at the grid edge (denoise_k, radius, clahe).
+- **Selector**: disabled. Val LOO J 1.234 < always-hybrid 1.256 (oracle 1.327); NIQE got weight 0. See `results/selector_val*.json`.
+- **Config frozen** (`configs/final.yaml` sha 99acdc7c…, weights sha e48336cf…; `results/test_lock.json`). Test evaluation launched on test_lol (15) and test_lolv2 (100) in parallel. Do not change `configs/final.yaml` or `src/` behaviour after this point.
+- Written: `scripts/make_eval_md.py` (eval file from CSVs), `scripts/failure_cases.py` (worst-k grids + automatic diagnosis), `README.md` (HF Spaces header: sdk docker, port 7860), `docs/architecture.md`, `examples/` (4 test images for the demo).
+- **Test results (run once).** LOL-v1 eval15: hybrid 17.21 / 0.734 / 0.331 vs. classical 16.05 / 0.721 / 0.335 vs. DL-ft 17.33 / 0.542 / 0.375. **LOL-v2 Real (unseen): classical 20.27 / 0.779 / 0.315 beats hybrid 18.92 / 0.761 / 0.336.** DL fine-tuned 15.26 vs. pretrained 18.21: **fine-tuning overfit LOL-v1 exposure**, and the hybrid inherits it (fusion_dl_bias 2). Fixed-param variants have better LPIPS (~0.26), so adaptive denoising over-smooths. Ablation on LOL-v2: every component helps PSNR. On LOL-v1, removing fusion/colour/Retinex raises PSNR. Everything is reported as measured in `eval_P1_TXX.md` and `docs/design.md` §6–8. Not re-tuned (that would use test).
+- **Failure cases** (`results/failures/`): LOL-v2 shaded daytime scenes over-exposed by the DL branch; LOL-v1 very dark non-uniform scenes under-exposed vs. GT.
+- **App fixes after local server testing:** (1) HTTP 500 caused by gradio 4.44 + pydantic ≥2.11 schema bug, so pinned `pydantic==2.10.6`. (2) A corrupt upload leaked a raw error with a server path through `gr.Image`, so the input is now `gr.File` and our loader validates it. (3) The default mode is now Hybrid, and Auto is labelled experimental (selector disabled). UI-only changes: no change to enhancement code or config after the test run.
+- Local latency via HTTP: 600×400 about 0.9–1.5 s processing / 2.6–3.0 s round-trip; 4000 px photo → 1024 px, 2.1–2.5 s / 5.9–6.7 s.
+- `.gitignore`: excludes `results/*/images/` (127 MB, regenerable).
+- **Pending:** HF login (`huggingface-cli login`), GitHub repo + push (gh is logged in as sanjitdk), Team ID + USN, deployed-latency measurement.

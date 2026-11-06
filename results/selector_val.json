@@ -1,0 +1,55 @@
+{
+  "features": [
+    "exposure_err",
+    "clipped",
+    "color_cast",
+    "detail_loss",
+    "noise"
+  ],
+  "always_hybrid": {
+    "J": 1.2554958425596268,
+    "psnr": 17.157634738355696,
+    "ssim": 0.7408820414543151
+  },
+  "selector_loo": {
+    "J": 1.234250728796625,
+    "psnr": 16.793451237891194,
+    "ssim": 0.7371463763713837,
+    "choice_counts": {
+      "hybrid": 45,
+      "dl": 1,
+      "classical": 4
+    }
+  },
+  "oracle": {
+    "J": 1.3269686923502124,
+    "psnr": 18.134753283020338,
+    "ssim": 0.7425074291229248,
+    "best_counts": {
+      "hybrid": 32,
+      "dl": 8,
+      "classical": 10
+    }
+  },
+  "selection_accuracy_loo": 0.6,
+  "always_dl": {
+    "J": 0.9246926457439969,
+    "psnr": 16.517398239682336,
+    "ssim": 0.5205879324674606
+  },
+  "always_classical": {
+    "J": 1.1910176396573873,
+    "psnr": 16.18323276083726,
+    "ssim": 0.7268761050701141
+  },
+  "weights": {
+    "exposure_err": 0.15089955644912179,
+    "clipped": 0.0,
+    "color_cast": 0.0,
+    "detail_loss": 0.08203417398474055,
+    "noise": 12.702831149757046
+  },
+  "enabled": false,
+  "best_fixed_candidate_on_val": "hybrid",
+  "decision": "selector disabled: does not beat always-hybrid on val (LOO)"
+}

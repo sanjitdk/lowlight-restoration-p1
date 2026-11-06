@@ -1,0 +1,8 @@
+{
+  "split": "test_lolv2",
+  "config": "configs/final.yaml",
+  "git": "uncommitted",
+  "n_images": 100,
+  "time": "2026-11-06 22:20",
+  "cpu_threads": 3
+}

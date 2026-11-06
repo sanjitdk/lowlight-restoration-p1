@@ -1,0 +1,38 @@
+[classical] denoise_k=1.5: J=0.6569 PSNR=14.98 SSIM=0.4368 LPIPS=0.5291
+[classical] denoise_k=2.5: J=0.8199 PSNR=15.33 SSIM=0.5124 LPIPS=0.4589
+[classical] denoise_k=4.0: J=0.9709 PSNR=15.65 SSIM=0.5873 LPIPS=0.3990
+[classical] denoise_k=6.0: J=1.0471 PSNR=15.86 SSIM=0.6319 LPIPS=0.3777
+[classical] denoise_k=8.0: J=1.0572 PSNR=15.94 SSIM=0.6435 LPIPS=0.3831
+  -> denoise_k=8.0 (PSNR 15.94, SSIM 0.6435, LPIPS 0.3831)
+[classical] denoise_floor=0.3: J=1.0572 PSNR=15.94 SSIM=0.6435 LPIPS=0.3831
+[classical] denoise_floor=0.6: J=1.0639 PSNR=15.95 SSIM=0.6487 LPIPS=0.3822
+[classical] denoise_floor=1.0: J=1.0625 PSNR=15.95 SSIM=0.6521 LPIPS=0.3874
+  -> denoise_floor=0.6 (PSNR 15.95, SSIM 0.6487, LPIPS 0.3822)
+[classical] denoise_radius=3: J=1.0639 PSNR=15.95 SSIM=0.6487 LPIPS=0.3822
+[classical] denoise_radius=5: J=1.0845 PSNR=16.23 SSIM=0.6700 LPIPS=0.3968
+[classical] denoise_radius=7: J=1.0941 PSNR=16.38 SSIM=0.6744 LPIPS=0.3993
+  -> denoise_radius=7 (PSNR 16.38, SSIM 0.6744, LPIPS 0.3993)
+[classical] target_lum=0.35: J=1.1099 PSNR=16.05 SSIM=0.6922 LPIPS=0.3846
+[classical] target_lum=0.45: J=1.0941 PSNR=16.38 SSIM=0.6744 LPIPS=0.3993
+[classical] target_lum=0.55: J=1.0761 PSNR=16.33 SSIM=0.6648 LPIPS=0.4051
+  -> target_lum=0.35 (PSNR 16.05, SSIM 0.6922, LPIPS 0.3846)
+[classical] clahe_clip_max=1.5: J=1.1621 PSNR=15.88 SSIM=0.7180 LPIPS=0.3500
+[classical] clahe_clip_max=3.0: J=1.1099 PSNR=16.05 SSIM=0.6922 LPIPS=0.3846
+[classical] clahe_clip_max=4.5: J=1.0166 PSNR=15.70 SSIM=0.6523 LPIPS=0.4205
+  -> clahe_clip_max=1.5 (PSNR 15.88, SSIM 0.7180, LPIPS 0.3500)
+[classical] saturation_boost=1.0: J=1.1910 PSNR=16.18 SSIM=0.7269 LPIPS=0.3450
+[classical] saturation_boost=1.15: J=1.1621 PSNR=15.88 SSIM=0.7180 LPIPS=0.3500
+[classical] saturation_boost=1.3: J=1.1271 PSNR=15.56 SSIM=0.7065 LPIPS=0.3572
+  -> saturation_boost=1.0 (PSNR 16.18, SSIM 0.7269, LPIPS 0.3450)
+[hybrid] guide_min=0.2: J=1.2538 PSNR=17.10 SSIM=0.7408 LPIPS=0.3419
+[hybrid] guide_min=0.5: J=1.2532 PSNR=17.08 SSIM=0.7412 LPIPS=0.3419
+[hybrid] guide_min=0.8: J=1.2506 PSNR=17.03 SSIM=0.7411 LPIPS=0.3421
+[hybrid] guide_min=1.0: J=1.2481 PSNR=16.99 SSIM=0.7408 LPIPS=0.3424
+  -> guide_min=0.2 (PSNR 17.10, SSIM 0.7408, LPIPS 0.3419)
+[hybrid] fusion_dl_bias=0.5: J=1.2506 PSNR=17.03 SSIM=0.7403 LPIPS=0.3410
+[hybrid] fusion_dl_bias=1.0: J=1.2538 PSNR=17.10 SSIM=0.7408 LPIPS=0.3419
+[hybrid] fusion_dl_bias=2.0: J=1.2555 PSNR=17.16 SSIM=0.7409 LPIPS=0.3433
+[hybrid] fusion_dl_bias=4.0: J=1.2555 PSNR=17.20 SSIM=0.7404 LPIPS=0.3449
+  -> fusion_dl_bias=2.0 (PSNR 17.16, SSIM 0.7409, LPIPS 0.3433)
+final val hybrid: PSNR 17.16 SSIM 0.7409 LPIPS 0.3433
+wrote configs/final.yaml

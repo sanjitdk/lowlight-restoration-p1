@@ -1,0 +1,8 @@
+{
+  "split": "test_lol",
+  "config": "configs/final.yaml",
+  "git": "uncommitted",
+  "n_images": 15,
+  "time": "2026-11-06 21:58",
+  "cpu_threads": 3
+}

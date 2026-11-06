@@ -1,0 +1,28 @@
+weights: weights/zerodcepp_finetuned.pth
+rules:
+  denoise_k: 8.0
+  denoise_floor: 0.6
+  denoise_radius: 7
+  target_lum: 0.35
+  clahe_clip_max: 1.5
+  saturation_boost: 1.0
+guide_min: 0.2
+guide_power: 1.0
+fusion_sigma: 0.2
+fusion_wc: 1.0
+fusion_ws: 1.0
+fusion_we: 1.0
+fusion_dl_bias: 2.0
+pyr_levels: 5
+selector:
+  enabled: false
+  weights:
+    exposure_err: 0.15089955644912179
+    clipped: 0.0
+    color_cast: 0.0
+    detail_loss: 0.08203417398474055
+    noise: 12.702831149757046
+  use_niqe: false
+  note: 'disabled: LOO on val J=1.2343 < always-hybrid 1.2555 (J = PSNR/20+SSIM-LPIPS);
+    see results/selector_val.json'
+_tuned_on: val (50 images from data/splits/val.txt), J = PSNR/20 + SSIM - 1.0*LPIPS

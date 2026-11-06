@@ -1,0 +1,28 @@
+weights: weights/zerodcepp_finetuned.pth
+rules:
+  denoise_k: 8.0
+  denoise_floor: 1.0
+  denoise_radius: 7
+  target_lum: 0.45
+  clahe_clip_max: 1.5
+  saturation_boost: 1.0
+guide_min: 0.5
+guide_power: 1.0
+fusion_sigma: 0.2
+fusion_wc: 1.0
+fusion_ws: 1.0
+fusion_we: 1.0
+fusion_dl_bias: 1.0
+pyr_levels: 5
+selector:
+  enabled: false
+  weights:
+    exposure_err: 0.2406679371049183
+    clipped: 0.0
+    color_cast: 0.2533238593191003
+    detail_loss: 0.0
+    noise: 8.467357116542063
+  use_niqe: false
+  note: 'disabled: LOO on val J=1.609 < always-hybrid 1.616 (with or without NIQE);
+    see results/selector_val*.json'
+_tuned_on: val (50 images from data/splits/val.txt)

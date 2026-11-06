@@ -1,0 +1,34 @@
+# Data (never commit datasets)
+data/*
+!data/splits/
+!data/unseen/.gitkeep
+
+# Secrets
+kaggle.json
+.env
+*.env
+*token*
+
+# Python / env
+.venv/
+venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Caches / outputs
+.cache/
+flagged/
+gradio_cached_examples/
+*.log
+results/tmp/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Regenerable evaluation outputs (large)
+results/*/images/
+results/*.err
+results/docker_build.log
+configs/final.frozen.bak

@@ -146,9 +146,30 @@ def _load(f):
     if f is None:
         raise gr.Error("Upload an image or select an example first.")
     try:
-        return load_image(f, MAX_SIDE)
+        return load_image(_open_small(f), MAX_SIDE)
     except ImageInputError as e:
         raise gr.Error(str(e))
+
+
+def _open_small(path):
+    """Open an upload without decoding a huge photo at full size (a 12 MP phone JPEG
+    is ~150 MB as float). JPEGs decode at a reduced scale (PIL draft); other formats
+    are box-reduced. The result stays >= 2x the final size; load_image does the
+    final resize. Unreadable files are passed through so load_image reports them."""
+    try:
+        pil = Image.open(path)
+        if pil.width * pil.height > 60_000_000:
+            return path  # load_image rejects it with a clear message
+        target = 2 * MAX_SIDE
+        if max(pil.size) > target:
+            pil.draft("RGB", (target, target))
+            pil.load()
+            factor = max(pil.size) // target
+            if factor >= 2:
+                pil = pil.reduce(factor)
+        return pil
+    except Exception:  # corrupt/unsupported: let load_image raise ImageInputError
+        return path
 
 
 # ---------------------------------------------------------------- callbacks

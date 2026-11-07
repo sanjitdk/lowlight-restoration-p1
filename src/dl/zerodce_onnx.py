@@ -44,16 +44,37 @@ def _auto_scale(h: int, w: int) -> int:
 
 
 class ZeroDCEppONNX:
-    def __init__(self, onnx_path: str | Path):
+    # Seven 3x3 convs -> each output pixel depends on input pixels at most 7 rows away,
+    # so strips with an 8-row halo give exactly the same result as the whole image.
+    HALO = 8
+
+    def __init__(self, onnx_path: str | Path, strip_rows: int = 96):
         self.net = cv2.dnn.readNetFromONNX(str(onnx_path))
+        self.strip_rows = strip_rows
+
+    def _forward(self, x: np.ndarray) -> np.ndarray:
+        self.net.setInput(np.ascontiguousarray(x.transpose(2, 0, 1))[None])
+        return self.net.forward()[0].transpose(1, 2, 0)
+
+    def _run_strips(self, x: np.ndarray) -> np.ndarray:
+        """Run the network in horizontal strips to bound memory (OpenCV DNN's conv
+        buffers grow with image area: ~330 MB for a full 600x400 frame)."""
+        h = x.shape[0]
+        if h <= self.strip_rows + 2 * self.HALO:
+            return self._forward(x)
+        out = np.empty((h, x.shape[1], 3), np.float32)
+        for y0 in range(0, h, self.strip_rows):
+            y1 = min(y0 + self.strip_rows, h)
+            a, b = max(0, y0 - self.HALO), min(h, y1 + self.HALO)
+            out[y0:y1] = self._forward(x[a:b])[y0 - a:y0 - a + (y1 - y0)]
+        return out
 
     def curve_map(self, img: np.ndarray, scale_factor: int = 1) -> np.ndarray:
         h, w = img.shape[:2]
         x = img.astype(np.float32)
         if scale_factor != 1:
             x = _resize(x, h // scale_factor, w // scale_factor, False, float(scale_factor))
-        self.net.setInput(np.ascontiguousarray(x.transpose(2, 0, 1))[None])
-        A = self.net.forward()[0].transpose(1, 2, 0)
+        A = self._run_strips(x)
         if A.shape[:2] != (h, w):
             A = _resize(np.ascontiguousarray(A), h, w, True)
         return A

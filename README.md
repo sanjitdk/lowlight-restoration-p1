@@ -23,7 +23,7 @@ This project enhances dark, noisy, colour-distorted photos with three approaches
 
 Every parameter is set from measured image statistics (brightness, noise *after* brightening, uneven lighting, colour cast). The rule constants were tuned on a held-out validation split only.
 
-- Results: [`eval_P1_TXX.md`](eval_P1_TXX.md)
+- Results: [`eval_P1_T31.md`](eval_P1_T31.md)
 - Design document: [`docs/design.md`](docs/design.md)
 - Architecture: [`docs/architecture.md`](docs/architecture.md)
 
@@ -64,7 +64,7 @@ python scripts/fit_selector.py                # enables the selector only if it 
 python scripts/evaluate.py --split test_lol
 python scripts/evaluate.py --split test_lolv2
 python scripts/failure_cases.py --split test_lolv2
-python scripts/make_eval_md.py --team TXX --usns "USN1"
+python scripts/make_eval_md.py --team T31 --usns "1RUA24CSE0319,1RUA24CSE0320,1RUA24CSE0352,1RUA24CSE0413"
 
 # Tests
 python tests/test_smoke.py

@@ -1,6 +1,6 @@
-USN_PLACEHOLDER
+1RUA24CSE0319,1RUA24CSE0320,1RUA24CSE0352,1RUA24CSE0413
 
-# Evaluation results — Problem P1 (Team TXX)
+# Evaluation results — Problem P1 (Team T31)
 
 Frozen config `configs/final.yaml` (sha 99acdc7c802dd703), weights sha e48336cf2b59d626, git `uncommitted`, first test run 2026-11-06 21:52. All parameters were tuned on the 50-image validation split only; test sets were evaluated once.
 

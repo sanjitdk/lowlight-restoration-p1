@@ -375,7 +375,7 @@ TOPBAR = f"""
   </div>
   <nav><a href="{REPO_URL}" target="_blank" rel="noopener">Source</a>
        <a href="{REPO_URL}/blob/main/docs/design.md" target="_blank" rel="noopener">Design document</a>
-       <a href="{REPO_URL}/blob/main/eval_P1_TXX.md" target="_blank" rel="noopener">Evaluation</a></nav>
+       <a href="{REPO_URL}/blob/main/eval_P1_T31.md" target="_blank" rel="noopener">Evaluation</a></nav>
 </div>"""
 
 THEME = gr.themes.Base(

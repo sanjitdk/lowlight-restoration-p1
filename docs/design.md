@@ -97,7 +97,7 @@ Each candidate (hybrid, DL, classical) gets interpretable no-reference features,
 Val result: classical 16.18 / 0.727 / 0.345 → **hybrid 17.16 / 0.741 / 0.343** (PSNR / SSIM / LPIPS).
 
 ## 6. Results
-Test sets were evaluated **once** with the frozen config. The full tables, generated from `results/*/summary.csv`, are in `eval_P1_TXX.md`; they are repeated here.
+Test sets were evaluated **once** with the frozen config. The full tables, generated from `results/*/summary.csv`, are in `eval_P1_T31.md`; they are repeated here.
 
 ### LOL-v1 eval15 (15 images)
 

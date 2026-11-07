@@ -4,8 +4,8 @@
 | :--- | :--- |
 | **Problem ID** | `P1` (CV Hackathon 2026) |
 | **Problem Title** | Robust Low-Light Image Restoration and Enhancement |
-| **Team Name** | `[Team name]` (Team ID `[TXX]`) |
-| **Team Members** | `[Full name]`, `[USN]` (solo entry) |
+| **Team ID** | `T31` |
+| **Team Members** | Praneel Pattan (1RUA24CSE0319), Prapthi P Shetty (1RUA24CSE0320), Raghav Raina (1RUA24CSE0352), Sanjit DK (1RUA24CSE0413) |
 | **GitHub Repository** | https://github.com/sanjitdk/lowlight-restoration-p1 (commit `de8eb10`; test metrics produced with config sha `99acdc7c802dd703`, weights sha `e48336cf2b59d626`, see `results/test_lock.json`) |
 | **Live Demo / Deployment** | https://lowlight-restoration-p1.onrender.com (Gradio app in Docker on Render, CPU only; the free instance takes about 30–60 s to wake up after it has been idle) |
 
@@ -66,7 +66,7 @@ input ─► analyze() ─► adaptive_params()
 
 ## 3. Experimental Benchmarks & Evaluation
 
-Protocol: all tuning on the 50-image val split. The test sets were evaluated **once** with the frozen `configs/final.yaml`; `results/test_lock.json` blocks re-runs with a changed config. All numbers come from `scripts/evaluate.py` (`results/*/summary.csv`) and are not edited by hand. The full tables are in `eval_P1_TXX.md`.
+Protocol: all tuning on the 50-image val split. The test sets were evaluated **once** with the frozen `configs/final.yaml`; `results/test_lock.json` blocks re-runs with a changed config. All numbers come from `scripts/evaluate.py` (`results/*/summary.csv`) and are not edited by hand. The full tables are in `eval_P1_T31.md`.
 
 ### 3.1 Quantitative Benchmarks
 
@@ -121,7 +121,7 @@ Figures are in `docs/figures/` and can be regenerated with `python scripts/make_
 The live app shows the same 11 intermediate stages for any uploaded image (*Pipeline* tab), plus a side-by-side of all three methods (*Comparison* tab). Worst-case grids are in `results/failures/`.
 
 ### 3.3 Ablation Study
-Each row removes one component from the adaptive hybrid. ΔPSNR is in dB relative to the full hybrid (negative = the component helps). Source: `eval_P1_TXX.md`.
+Each row removes one component from the adaptive hybrid. ΔPSNR is in dB relative to the full hybrid (negative = the component helps). Source: `eval_P1_T31.md`.
 
 | Removed component | ΔPSNR LOL-v1 (15) | ΔPSNR LOL-v2 (100) | Effect on SSIM / LPIPS (LOL-v2) |
 | :--- | :---: | :---: | :--- |
@@ -191,5 +191,5 @@ python scripts/evaluate.py --split test_lolv2
 ### Student Submission Checklist
 - [x] Working GitHub repository link included with an updated `README.md`.
 - [x] No raw code pasted into this report.
-- [x] All table metrics match test runs reproducible via the repository (`scripts/evaluate.py` → `results/*/summary.csv` → `eval_P1_TXX.md`).
+- [x] All table metrics match test runs reproducible via the repository (`scripts/evaluate.py` → `results/*/summary.csv` → `eval_P1_T31.md`).
 - [ ] All team member details accurately recorded. *(Fill in Team name, Team ID and USN in the header.)*

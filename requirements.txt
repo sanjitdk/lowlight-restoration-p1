@@ -9,3 +9,13 @@ Pillow==10.4.0
 PyYAML==6.0.2
 gradio==4.44.1
 pydantic==2.10.6       # gradio 4.44 API-schema bug with pydantic>=2.11
+# Gradio 4.44 dependencies pinned to the versions tested locally
+# (huggingface_hub>=1.0 removed HfFolder, which gradio 4.44 imports).
+huggingface_hub==0.36.2
+gradio_client==1.3.0
+fastapi==0.128.8
+starlette==0.49.3
+uvicorn==0.39.0
+httpx==0.28.1
+websockets==12.0
+python-multipart==0.0.20

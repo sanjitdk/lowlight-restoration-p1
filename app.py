@@ -135,8 +135,32 @@ def measurements_html(img, out, info, ms, mode):
 
 
 def _save(out) -> str:
-    path = OUT_DIR / f"enhanced_{int(time.time() * 1000)}.png"
-    Image.fromarray(to_uint8(out)).save(path)
+    """Full-resolution PNG for download (fast, light compression)."""
+    path = OUT_DIR / f"enhanced_{time.time_ns()}.png"
+    cv2.imwrite(str(path), cv2.cvtColor(to_uint8(out), cv2.COLOR_RGB2BGR), [cv2.IMWRITE_PNG_COMPRESSION, 1])
+    return str(path)
+
+
+def _gc(max_age_s: int = 900):
+    """Delete our temporary outputs older than 15 minutes."""
+    now = time.time()
+    for f in OUT_DIR.glob("*"):
+        try:
+            if now - f.stat().st_mtime > max_age_s:
+                f.unlink()
+        except OSError:
+            pass
+
+
+def _jpg(img: np.ndarray, max_side: int | None = None, quality: int = 88) -> str:
+    """Preview image as a JPEG file. Gradio would otherwise PNG-encode every gallery
+    array, which takes seconds on a small shared CPU."""
+    img = to_uint8(img) if img.dtype != np.uint8 else img
+    if max_side and max(img.shape[:2]) > max_side:
+        k = max_side / max(img.shape[:2])
+        img = cv2.resize(img, (round(img.shape[1] * k), round(img.shape[0] * k)), interpolation=cv2.INTER_AREA)
+    path = OUT_DIR / f"v_{time.time_ns()}.jpg"
+    cv2.imwrite(str(path), cv2.cvtColor(img, cv2.COLOR_RGB2BGR), [cv2.IMWRITE_JPEG_QUALITY, quality])
     return str(path)
 
 
@@ -177,6 +201,7 @@ def _open_small(path):
 def enhance(file, mode_label, progress=gr.Progress()):
     try:
         progress(0.1, desc="Reading image")
+        _gc()
         img = _load(file)
         mode = MODES.get(mode_label, "hybrid")
         progress(0.3, desc="Enhancing")
@@ -186,7 +211,7 @@ def enhance(file, mode_label, progress=gr.Progress()):
         if mode == "classical":
             inter["classical"] = out  # show the final classical result as the last pipeline step
         progress(0.9, desc="Rendering")
-        gallery = [(_vis(inter[k], m), cap) for k, cap, m in STAGES if k in inter]
+        gallery = [(_jpg(_vis(inter[k], m), 480), cap) for k, cap, m in STAGES if k in inter]
         details = {"image statistics": {k: round(float(v), 4) for k, v in info["stats"].items()},
                    "adaptive parameters": {k: (round(float(v), 5) if isinstance(v, (float, np.floating)) else v)
                                            for k, v in info["params"].items()}}
@@ -208,14 +233,15 @@ def pick_example(mode_label, evt: gr.SelectData, progress=gr.Progress()):
 
 def compare_all(file, progress=gr.Progress()):
     try:
+        _gc()
         img = _load(file)
-        tiles, rows = [(to_uint8(img), "Input")], []
+        tiles, rows = [(_jpg(img, 768), "Input")], []
         for i, (name, mode) in enumerate([("Classical", "classical"), ("Zero-DCE++", "dl"), ("Hybrid", "hybrid")]):
             progress(0.15 + 0.28 * i, desc=f"Running {name}")
             t = time.perf_counter()
             out = ENH.enhance(img, mode=mode)
             ms = (time.perf_counter() - t) * 1000
-            tiles.append((to_uint8(out), f"{name}, {ms / 1000:.2f} s"))
+            tiles.append((_jpg(out, 768), f"{name}, {ms / 1000:.2f} s"))
             y = luminance(out)
             rows.append(f"| {name} | {ms / 1000:.2f} | {y.mean():.3f} | {(y > 0.98).mean() * 100:.2f} | "
                         f"{np.abs(cv2.Laplacian(y, cv2.CV_32F)).mean() * 100:.2f} |")
@@ -384,7 +410,8 @@ THEME = gr.themes.Base(
 
 EXAMPLES = sorted(str(p) for p in (ROOT / "examples").glob("*") if p.suffix.lower() in {".png", ".jpg", ".jpeg"})
 
-with gr.Blocks(title="Low-Light Image Restoration", theme=THEME, css=CSS, head=HEAD) as demo:
+with gr.Blocks(title="Low-Light Image Restoration", theme=THEME, css=CSS, head=HEAD,
+               delete_cache=(900, 1800)) as demo:
     gr.HTML(TOPBAR)
     with gr.Row(equal_height=False):
         with gr.Column(scale=3, min_width=260) as left_col:

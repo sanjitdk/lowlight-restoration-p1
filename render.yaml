@@ -1,0 +1,16 @@
+# Render Blueprint: free Docker web service for the Gradio app.
+services:
+  - type: web
+    name: lowlight-restoration-p1
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PORT
+        value: "7860"
+      - key: GRADIO_ANALYTICS_ENABLED
+        value: "False"
+      - key: APP_MAX_SIDE
+        value: "768"
+      - key: TORCH_THREADS
+        value: "1"

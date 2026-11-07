@@ -20,9 +20,17 @@ from PIL import Image
 
 from src.analysis import luminance
 from src.hybrid import HybridEnhancer
-from src.io_utils import MAX_SIDE, ImageInputError, load_image, to_uint8
+from src.io_utils import MAX_SIDE as _IO_MAX_SIDE, ImageInputError, load_image, to_uint8
 
 ROOT = Path(__file__).resolve().parent
+# Hosts with little RAM (e.g. Render free, 512 MB) set APP_MAX_SIDE lower to cap memory;
+# the evaluation pipeline is unaffected.
+MAX_SIDE = min(_IO_MAX_SIDE, int(os.environ.get("APP_MAX_SIDE", _IO_MAX_SIDE)))
+try:
+    import torch
+    torch.set_num_threads(int(os.environ.get("TORCH_THREADS", torch.get_num_threads())))
+except ImportError:
+    pass
 REPO_URL = "https://github.com/sanjitdk/lowlight-restoration-p1"
 CONFIG = os.environ.get("LOWLIGHT_CONFIG", str(ROOT / "configs/final.yaml"))
 if not Path(CONFIG).exists():

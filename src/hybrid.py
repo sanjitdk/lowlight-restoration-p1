@@ -6,6 +6,8 @@ Main entry: `HybridEnhancer(cfg).enhance(img, mode="hybrid")`.
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 import cv2
 import numpy as np
 import yaml
@@ -13,7 +15,24 @@ import yaml
 from .analysis import adaptive_params, analyze, luminance, post_noise_eps
 from .classical import (adjust_saturation, denoise_guided, enhance_classical,
                         estimate_illumination, gray_world_wb)
-from .dl.zerodce import enhance_dl, load_model
+
+try:  # PyTorch backend (training, evaluation, local runs)
+    from .dl.zerodce import enhance_dl as _enhance_torch, load_model
+except ImportError:  # light deploy image without torch: same network via ONNX + OpenCV DNN
+    _enhance_torch = load_model = None
+from .dl.zerodce_onnx import ZeroDCEppONNX, enhance_dl_onnx, load_model_onnx
+
+
+def enhance_dl(model, img, strength=1.0):
+    if isinstance(model, ZeroDCEppONNX):
+        return enhance_dl_onnx(model, img, strength)
+    return _enhance_torch(model, img, strength)
+
+
+def _load_any(weights: str):
+    if load_model is not None and not str(weights).endswith(".onnx"):
+        return load_model(weights)
+    return load_model_onnx(str(Path(weights).with_suffix(".onnx")))
 
 DEFAULT_CFG = {
     "weights": "weights/zerodcepp_finetuned.pth",
@@ -122,7 +141,7 @@ class HybridEnhancer:
 
     def __init__(self, cfg: dict | str | None = None, model=None):
         self.cfg = load_config(cfg) if (cfg is None or isinstance(cfg, str)) else {**DEFAULT_CFG, **cfg}
-        self.model = model if model is not None else load_model(self.cfg["weights"])
+        self.model = model if model is not None else _load_any(self.cfg["weights"])
 
     def enhance(self, img, mode="hybrid", disable=(), adaptive=True, return_intermediates=False):
         """mode: 'hybrid' (fused), 'auto' (selector over candidates), 'classical', 'dl'.

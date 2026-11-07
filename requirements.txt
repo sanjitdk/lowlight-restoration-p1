@@ -1,6 +1,5 @@
-# Runtime (app + inference). Kept light for Hugging Face Spaces CPU.
---extra-index-url https://download.pytorch.org/whl/cpu
-torch==2.5.1
+# Runtime for the deployed app. No PyTorch: Zero-DCE++ runs from weights/*.onnx via OpenCV DNN
+# (fits a 512 MB host). Training/evaluation need requirements-dev.txt (adds torch).
 numpy==1.26.4
 opencv-python-headless==4.10.0.84
 scikit-image==0.24.0

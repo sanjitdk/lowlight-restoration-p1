@@ -31,6 +31,7 @@ try:
     torch.set_num_threads(int(os.environ.get("TORCH_THREADS", torch.get_num_threads())))
 except ImportError:
     pass
+cv2.setNumThreads(int(os.environ.get("CV_THREADS", cv2.getNumThreads())))
 REPO_URL = "https://github.com/sanjitdk/lowlight-restoration-p1"
 CONFIG = os.environ.get("LOWLIGHT_CONFIG", str(ROOT / "configs/final.yaml"))
 if not Path(CONFIG).exists():
@@ -402,14 +403,14 @@ with gr.Blocks(title="Low-Light Image Restoration", theme=THEME, css=CSS, head=H
             gr.HTML('<div class="section-label">Examples</div>')
             ex = gr.Gallery(EXAMPLES, columns=4, rows=1, height=132, allow_preview=False, show_label=False,
                             show_share_button=False, show_download_button=False, elem_id="examples")
-        ex.select(pick_example, [mode], [inp] + outs)
+        ex.select(pick_example, [mode], [inp] + outs, concurrency_id="cpu")
 
-    btn.click(enhance, [inp, mode], outs)
-    inp.upload(enhance, [inp, mode], outs)
-    cmp_btn.click(compare_all, [inp], [cmp_gallery, cmp_table])
+    btn.click(enhance, [inp, mode], outs, concurrency_id="cpu")
+    inp.upload(enhance, [inp, mode], outs, concurrency_id="cpu")
+    cmp_btn.click(compare_all, [inp], [cmp_gallery, cmp_table], concurrency_id="cpu")
 
 if __name__ == "__main__":
     print(f"\n>>> Open http://localhost:{os.environ.get('PORT', 7860)} in your browser "
           "(the 0.0.0.0 address printed below does not work in a browser on Windows)\n", flush=True)
-    demo.queue(max_size=16).launch(server_name="0.0.0.0", server_port=int(os.environ.get("PORT", 7860)),
+    demo.queue(max_size=16, default_concurrency_limit=1).launch(server_name="0.0.0.0", server_port=int(os.environ.get("PORT", 7860)),
                                    show_error=True)

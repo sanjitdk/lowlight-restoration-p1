@@ -14,3 +14,9 @@ services:
         value: "768"
       - key: TORCH_THREADS
         value: "1"
+      - key: CV_THREADS
+        value: "1"
+      - key: OMP_NUM_THREADS
+        value: "1"
+      - key: OPENBLAS_NUM_THREADS
+        value: "1"

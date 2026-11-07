@@ -53,13 +53,13 @@
 - [x] Bad-input tests via the running server (corrupt, 8×8, alpha, 4000 px) + tests/test_smoke.py
 - [x] `Dockerfile` + `.dockerignore`; `python app.py` checked locally (Docker Desktop not running, so no local image build)
 - [x] UI redesign: slider, stat cards, compare tab, thumbnails, mobile-checked
-- [ ] Push to Hugging Face Spaces (waiting for HF login)
-- [ ] Measure HF CPU latency (600 / 1024 / 4000 px, cold vs. warm) → eval file
-- [ ] Test the URL on phone + laptop
+- [x] Deploy: HF Spaces needs PRO now, so deployed on Render free (`render.yaml`); fixed two crashes (dependency pin, out-of-memory → ONNX + strips)
+- [x] Measure deployed latency (600 px + 4000 px, all modes, warm) → `results/deploy_latency.json` + eval file
+- [x] Test the live URL at phone (390 px) and laptop (1366 px) widths: example → result OK
 
 ## Phase 8 — Docs + submission (~15 min)
 - [x] `docs/architecture.md` (Mermaid), matching `src/`
-- [x] `docs/design.md` (all sections; deploy latency pending)
+- [x] `docs/design.md` (all sections, incl. deployment + measured latency)
 - [x] `README.md` (setup, one command, reproduce results; live URL pending)
 - [x] `docs/viva_notes.md` + 3-min demo script
 - [ ] Fill in USNs / Team ID

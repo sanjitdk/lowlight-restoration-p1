@@ -27,6 +27,8 @@ Key docs: `goal.md` (what done means), `plan.md` (approach + phases), `todolist.
 - Run app: `python app.py`
 - Evaluate (dev): `python scripts/evaluate.py --split val`
 - Evaluate (final, once): `python scripts/evaluate.py --split test --config configs/final.yaml`
+- Batch inference: `python scripts/run_inference.py --input_dir examples --output_dir results/inference --mode all [--save_intermediates]`
+- Report figures: `python scripts/make_figures.py` → `docs/figures/`
 
 ## Progress log
 ### 2026-11-06
@@ -67,3 +69,9 @@ Key docs: `goal.md` (what done means), `plan.md` (approach + phases), `todolist.
 - Deploy crash 2: out of memory on the first hybrid request (PyTorch ≈150 MB + processing). **Fix: the deployed app does not use PyTorch.** `src/dl/zerodce_onnx.py` runs the same Zero-DCE++ curve network from `weights/zerodcepp_finetuned.onnx` with OpenCV DNN; resizing and the curve are done in NumPy to match the PyTorch code. `src/hybrid.py` uses it only when torch is not installed. Checked: full-pipeline max |diff| vs PyTorch = 5e-4 (< 1/255) over all modes; `tests/test_onnx_backend.py`. torch moved to `requirements-dev.txt` (training/evaluation unchanged). Local peak memory without torch at 768 px: ~406 MB (Windows). Heavy UI events share one queue (`concurrency_id="cpu"`).
 - `app.py`: optional `APP_MAX_SIDE`, `TORCH_THREADS`, `CV_THREADS` env vars.
 - Still OOM after the ONNX switch: OpenCV DNN's conv buffers for a full 600×400 frame took ~330 MB, and a 4000 px photo decoded at full size took ~150 MB more. Fixes: `ZeroDCEppONNX` runs the network in 96-row strips with an 8-row halo (exact: receptive radius is 7), and `app._open_small` decodes big JPEGs at reduced scale (PIL draft) before the final resize. Local peak without torch, all modes + compare: ~310 MB (600×400 and 4000 px).
+- **Submission report** `REPORT_P1.md` (hackathon template), filled from `eval_P1_TXX.md` / `docs/design.md`. Added `scripts/run_inference.py` (folder CLI, frozen config) and `scripts/make_figures.py` (3 figures in `docs/figures/`: extreme low-light, non-uniform, intermediates). No change to `src/` or config.
+- **Deployed latency measured** (Render, warm, 600×400, 4 req/mode): processing classical 0.55–0.87 s, DL 2.8–3.9 s, hybrid 3.4–4.3 s; round-trip 7–16 s. Live URL: https://lowlight-restoration-p1.onrender.com. Still pending: Team name/ID + USN.
+- Speed on Render: Gradio was PNG-encoding ~13 arrays per click (slow on the shared CPU). Previews are now JPEG files (pipeline ≤480 px), the download PNG uses light compression, and temp files are cleaned.
+- **Live: https://lowlight-restoration-p1.onrender.com** (Render free). Measured warm, median of 3, upload → result: hybrid 5.6 s (600×400) / 7.4 s (4000×3000 photo); classical 2.5 / 5.9 s; DL 4.3 / 6.4 s → `results/deploy_latency.json`, eval file, design.md §10. Cold start after ~15 min idle ≈ 30–60 s (Render docs, not measured). Checked with headless Chrome at phone and laptop widths.
+- Google Cloud Run was tried but needs a ₹1000 prepayment, so it was dropped (an empty project `lowlight-p1-sdk` exists without billing).
+- **Remaining:** Team ID + USN → `python scripts/make_eval_md.py --team <ID> --usns "<USN>"`, rename the eval file, update the app's Evaluation link.

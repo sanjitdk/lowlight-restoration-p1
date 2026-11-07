@@ -202,14 +202,23 @@ Worst cases by hybrid PSNR (grids: input | classical | DL | hybrid | GT) are in 
 - **Windows CRLF line endings** broke the LOL-v2 download file list; fixed.
 
 ## 10. Deployment
-Gradio app (`app.py`) in Docker on Hugging Face Spaces (CPU). Inputs are capped at 1024 px on the longest side. Errors (corrupt, tiny or oversized files, missing input) appear as messages in the UI, and Gradio provides the loading state. All 11 intermediate stages are shown. DEPLOY_PLACEHOLDER
+Gradio app (`app.py`) in Docker on **Render's free tier** (https://lowlight-restoration-p1.onrender.com; `render.yaml`). Hugging Face Spaces was the plan, but it now requires a paid plan for Docker/Gradio apps. Inputs are capped at 1024 px locally and 768 px on the deployed instance (`APP_MAX_SIDE`). Errors (corrupt, tiny or oversized files, missing input) appear as messages in the UI, and Gradio provides the loading state. All 11 intermediate stages are shown.
+
+**Fitting a 512 MB host.** The first deploys were killed for running out of memory. Profiling showed three causes, each fixed without changing the results:
+- *PyTorch runtime (~150 MB):* the deployed image does not install torch. The Zero-DCE++ curve network is exported to ONNX and run with OpenCV DNN (`src/dl/zerodce_onnx.py`); resizing and the curve LE(x) are done in NumPy, matching `zerodce.py`. Full-pipeline max difference vs PyTorch: 5×10⁻⁴ (< 1/255); `tests/test_onnx_backend.py` checks it. Training and evaluation still use PyTorch.
+- *OpenCV DNN conv buffers (~330 MB for a 600×400 frame):* the network runs in 96-row strips with an 8-row halo. The receptive radius is 7 px, so the output is identical.
+- *Full-size decode of phone photos (~150 MB):* large JPEGs are decoded at reduced scale before the final resize.
+
+Peak memory went from >530 MB to ~310 MB. Previews are sent as JPEG files (PNG encoding of ~13 images per click dominated response time on the shared CPU), and heavy requests share one queue.
+
+**Measured on the live URL** (warm, median of 3, upload → result): hybrid 5.6 s at 600×400 and 7.4 s for a 4000×3000 photo; classical 2.5 / 5.9 s; Zero-DCE++ 4.3 / 6.4 s. Full table in `eval_P1_*.md` and `results/deploy_latency.json`. A sleeping free instance needs ~30–60 s to wake on the first request.
 
 ## 11. Limitations
 - Tuned and fine-tuned only on LOL (indoor, static scenes, mostly uniform darkness). The illumination guidance, meant for non-uniform scenes, barely registers in LOL metrics.
 - Several tuned values sit at the edge of their grids, so the optimum may lie further out.
 - The quality selector did not beat always-hybrid. Simple no-reference features predict the best candidate only about 60% of the time, and NIQE added nothing on val.
 - PSNR/SSIM penalise any tone difference from one photographer's reference. Some "failures" are plausible alternative exposures.
-- CPU latency is around a second per image at 600×400 and grows with resolution (hence the 1024 px cap).
+- CPU latency is around a second per image at 600×400 on a laptop and 3–4 s on the free host's shared CPU, and grows with resolution (hence the size caps). The free host sleeps when idle (~30–60 s first load).
 
 ## 12. Ethics
 - Enhancement *invents* plausible detail and tone. The outputs must not be used as forensic or evidential images (for example to identify faces or number plates in surveillance footage) or presented as what the scene "really" looked like.

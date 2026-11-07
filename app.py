@@ -1,7 +1,7 @@
 """Gradio app: adaptive low-light image restoration (CV Hackathon 2026, P1).
 
 Run locally:  python app.py   → open http://localhost:7860
-Hugging Face Spaces runs this file directly (Docker SDK).
+The Docker image (Render, see render.yaml) runs this file directly.
 """
 from __future__ import annotations
 

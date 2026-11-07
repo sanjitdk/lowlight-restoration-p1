@@ -10,7 +10,8 @@ pinned: false
 
 # Adaptive Low-Light Image Restoration (CV Hackathon 2026, P1)
 
-**Live demo:** _<HF Spaces URL — to be added>_
+**Live demo:** https://lowlight-restoration-p1.onrender.com  
+(Render free tier: if it has been idle, the first load takes ~30–60 s while it wakes up.)
 
 This project enhances dark, noisy, colour-distorted photos with three approaches, which are compared on the same data:
 
@@ -71,7 +72,7 @@ python tests/test_smoke.py
 
 ## Repository layout
 ```
-app.py                 Gradio app (HF Spaces entrypoint)
+app.py                 Gradio app (Docker entrypoint, deployed on Render)
 src/io_utils.py        safe image loading / validation
 src/analysis.py        image statistics → adaptive parameters
 src/classical.py       classical pipeline

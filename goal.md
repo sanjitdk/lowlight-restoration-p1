@@ -4,7 +4,7 @@
 Design an intelligent, illumination-adaptive image restoration system. It should enhance severely underexposed, noisy and colour-distorted images while preserving fine textures, edges and structure across different lighting conditions. It must do so without overexposure, halo artifacts or unnatural colours.
 
 ## Definition of done
-A **deployed** low-light restoration app (public Hugging Face Spaces URL) with adaptive enhancement, comparative evaluation, intermediate visualizations and documented failure analysis. All numbers are **measured, not assumed**.
+A **deployed** low-light restoration app (public URL, hosted on Render free tier) with adaptive enhancement, comparative evaluation, intermediate visualizations and documented failure analysis. All numbers are **measured, not assumed**.
 
 ## Requirement coverage (each must be met and point to code)
 ### A. Classical CV → `src/classical.py`, `src/analysis.py`

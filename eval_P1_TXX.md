@@ -67,3 +67,18 @@ Metric order follows the problem statement: PSNR, SSIM, LPIPS, NIQE, latency, no
 - Oracle (best per image): J = 1.3270
 - Decision: **selector disabled: does not beat always-hybrid on val (LOO)**
 
+## Deployed latency (Render free web service (shared CPU, 512 MB RAM), Docker, Oregon (US))
+
+Live URL: https://lowlight-restoration-p1.onrender.com/
+
+| Input size | Mode | Upload → result (s) | Processing in app (s) |
+|---|---|--:|--:|
+| 600x400 | hybrid | 5.56 | 3.63 |
+| 600x400 | classical | 2.51 | 0.59 |
+| 600x400 | dl | 4.30 | 2.72 |
+| 4000x3000 JPEG (resized to 768 px) | hybrid | 7.37 | 3.39 |
+| 4000x3000 JPEG (resized to 768 px) | classical | 5.87 | 1.10 |
+| 4000x3000 JPEG (resized to 768 px) | dl | 6.43 | 2.30 |
+
+Median of 3 runs each, warm instance, measured 2026-11-07 11:26. Free instances sleep after ~15 min idle; the first request then waits roughly 30-60 s for the container to start (Render's documented behaviour, not measured here)
+

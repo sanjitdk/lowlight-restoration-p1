@@ -1,0 +1,55 @@
+{
+ "meta": {
+  "url": "https://lowlight-restoration-p1.onrender.com/",
+  "host": "Render free web service (shared CPU, 512 MB RAM), Docker, Oregon (US)",
+  "client": "gradio_client on the developer laptop (India); warm instance",
+  "measured": "2026-11-07 11:26",
+  "seconds": "median time from starting the upload to the server returning the result (upload + queue + processing + response)",
+  "processing_s": "enhancement time measured inside the app",
+  "cold_start": "Free instances sleep after ~15 min idle; the first request then waits roughly 30-60 s for the container to start (Render's documented behaviour, not measured here)"
+ },
+ "rows": [
+  {
+   "size": "600x400",
+   "mode": "hybrid",
+   "seconds": 5.56,
+   "processing_s": 3.63,
+   "runs": 3
+  },
+  {
+   "size": "600x400",
+   "mode": "classical",
+   "seconds": 2.51,
+   "processing_s": 0.59,
+   "runs": 3
+  },
+  {
+   "size": "600x400",
+   "mode": "dl",
+   "seconds": 4.3,
+   "processing_s": 2.72,
+   "runs": 3
+  },
+  {
+   "size": "4000x3000 JPEG (resized to 768 px)",
+   "mode": "hybrid",
+   "seconds": 7.37,
+   "processing_s": 3.39,
+   "runs": 3
+  },
+  {
+   "size": "4000x3000 JPEG (resized to 768 px)",
+   "mode": "classical",
+   "seconds": 5.87,
+   "processing_s": 1.1,
+   "runs": 3
+  },
+  {
+   "size": "4000x3000 JPEG (resized to 768 px)",
+   "mode": "dl",
+   "seconds": 6.43,
+   "processing_s": 2.3,
+   "runs": 3
+  }
+ ]
+}

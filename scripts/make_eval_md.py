@@ -78,9 +78,14 @@ def main():
     lat = ROOT / "results/deploy_latency.json"
     if lat.exists():
         d = json.loads(lat.read_text())
-        out += ["## Deployed latency (Hugging Face Spaces CPU)", "", "| Input size | Mode | Latency (s) |", "|---|---|---|"]
-        out += [f"| {r['size']} | {r['mode']} | {r['seconds']:.2f} |" for r in d]
-        out.append("")
+        meta, rows = (d.get("meta", {}), d["rows"]) if isinstance(d, dict) else ({}, d)
+        out += [f"## Deployed latency ({meta.get('host', 'deployed CPU')})", ""]
+        if meta.get("url"):
+            out += [f"Live URL: {meta['url']}", ""]
+        out += ["| Input size | Mode | Upload → result (s) | Processing in app (s) |", "|---|---|--:|--:|"]
+        out += [f"| {r['size']} | {r['mode']} | {r['seconds']:.2f} | {r.get('processing_s', float('nan')):.2f} |" for r in rows]
+        out += ["", f"Median of {rows[0].get('runs', 1)} runs each, warm instance, measured {meta.get('measured', '')}. "
+                f"{meta.get('cold_start', '')}", ""]
     name = ROOT / f"eval_P1_{args.team}.md"
     name.write_text("\n".join(out) + "\n", encoding="utf-8")
     print(f"wrote {name}")
